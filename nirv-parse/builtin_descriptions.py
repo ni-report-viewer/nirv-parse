@@ -98,12 +98,19 @@ pyafq_bundles = [
     'CNIII_R',
     'UNC_L',
     'MdLF_L',
-    'AC']
+    'AC',
+    'whole_brain']
 
 
 builtin_descriptions = {}
 for bundle_name in pyafq_bundles:
-    builtin_descriptions["n_streamlines_" + bundle_name] =\
-        f"Number of streamlines (uncleaned) found for bundle: {bundle_name}"
-    builtin_descriptions["n_streamlines_clean_" + bundle_name] =\
-        f"Number of streamlines (uncleaned) found for bundle: {bundle_name}"
+    if bundle_name == "whole_brain":
+        builtin_descriptions["n_streamlines_" + bundle_name] =\
+            f"Number of streamlines (uncleaned) identified as belonging to a bundle"
+        builtin_descriptions["n_streamlines_clean_" + bundle_name] =\
+            f"Number of streamlines (cleaned) identified as belonging to a bundle"
+    else:
+        builtin_descriptions["n_streamlines_" + bundle_name] =\
+            f"Number of streamlines (uncleaned) found for bundle: {bundle_name}"
+        builtin_descriptions["n_streamlines_clean_" + bundle_name] =\
+            f"Number of streamlines (cleaned) found for bundle: {bundle_name}"
