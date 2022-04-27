@@ -57,7 +57,8 @@ for index, row in merged_dfs.iterrows():
             logger.warning((
                 f"More than one HTML found with filters: {all_filters}. "
                 f"The following path was chosen: {found_html[0].path}"))
-        merged_dfs.loc[index, "path_to_html_report"] = found_html[0].path
+        merged_dfs.loc[index, "path_to_html_report"] = op.relpath(
+            found_html[0].path, inputs.bids_layout_path)
 merged_dfs.to_csv(
     op.join(
         inputs.bids_layout_path,
