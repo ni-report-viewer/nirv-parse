@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from typing import Union
-from process_csv import CSVinfo
+from NIRVparse.process_csv import CSVinfo
 
 
 __all__ = ["Inputs", "get_pyafq_inputs"]

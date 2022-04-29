@@ -1,0 +1,26 @@
+#!/usr/bin/env python
+
+import click
+from NIRVparse.inputs import get_pyafq_inputs
+from NIRVparse.gen_json import gen_json
+
+@click.command()
+@click.option(
+    '--pipeline-name', prompt='Pipeline name',
+    help=(
+        'Name of supported pipeline. The following pipelines are supported: '
+        'afq'))
+@click.option('--bids-path', prompt='BIDS path',
+              help='Path to BIDS dataset')
+
+
+def parse(pipeline_name, bids_path):
+    if pipeline_name.lower() == 'afq':
+        inputs = get_pyafq_inputs(bids_path)
+    else:
+        raise ValueError(f'Pipeline {pipeline_name} is not supported')
+    gen_json(inputs)
+
+
+if __name__ == '__main__':
+    parse()

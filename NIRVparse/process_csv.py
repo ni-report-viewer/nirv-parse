@@ -1,6 +1,5 @@
 from dataclasses import dataclass, field
 import logging
-import os.path as op
 import dask.dataframe as dd
 
 
