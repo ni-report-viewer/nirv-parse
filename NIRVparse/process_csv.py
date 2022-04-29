@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from typing import Union
 import logging
 import dask.dataframe as dd
 
@@ -19,17 +20,23 @@ class CSVinfo:
     ----------
     bids_filters : dict
         Filter to pass to bids_layout.get when finding CSV files.
-    derivative_folder : str
+    derivative_folder : str or None, optional
         Name of derivatives folder which contains the CSV.
+        If None, will not look for CSV in derivatives folder.
+        Default: None
     value_names_to_wide : list, optional
         List of value names to use to pivot the CSV from long to wide.
         Use this if each row does not already correspond to a participantID
         or sessionID. If the list is empty, perform no pivot.
         Default: []
+    occlude_columns : list, optional
+        List of columns to drop from the CSV.
+        Default: []
     """
     bids_filters: dict
-    derivative_folder: str
+    derivative_folder: Union[str, None] = None
     value_names_to_wide: list = field(default_factory=lambda: [])
+    occlude_columns: list = field(default_factory=lambda: [])
 
 
 def find_process_csv(csv_info, bids_layout):
@@ -39,6 +46,7 @@ def find_process_csv(csv_info, bids_layout):
     logger.info(
         f"# of files found with filter {csv_info.bids_filters}: {len(found_csvs)}")
     df = dd.read_csv(found_csvs, include_path_column=True).compute()
+    df = df.drop(csv_info.occlude_columns, axis=1, errors='ignore')
 
     # pivot if necessary
     if len(v_names) > 0:

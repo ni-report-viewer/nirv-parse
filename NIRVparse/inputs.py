@@ -28,3 +28,32 @@ def get_pyafq_inputs(bids_layout_path):
         "afq",
         {}
     )
+
+
+def get_qsiprep_inputs(bids_layout_path, in_deriv):
+    bids_layout_kwargs = {"validate": False}
+    csv_filters = {"suffix": "dwi"}
+    csv_occlusion = [
+        "file_name", "subject_id", "session_id", "task_id", "dir_id",
+        "acq_id", "space_id", "rec_id", "run_id"]
+    if in_deriv:
+        return Inputs(
+            bids_layout_path,
+            [CSVinfo(
+                csv_filters,
+                "qsiprep",
+                [],
+                csv_occlusion)],
+            bids_layout_kwargs,
+            {},
+            "qsiprep")
+    else:
+        return Inputs(
+            bids_layout_path,
+            [CSVinfo(
+                csv_filters,
+                None,
+                [],
+                csv_occlusion)],
+            bids_layout_kwargs
+        )
