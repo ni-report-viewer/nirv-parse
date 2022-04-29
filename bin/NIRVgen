@@ -1,0 +1,41 @@
+#!/usr/bin/env python
+
+import click
+from NIRVparse.inputs import get_pyafq_inputs, get_qsiprep_inputs
+from NIRVparse.gen_json import gen_json
+
+
+def check_if_in_deriv_folder(ctx, param, pipeline_name):
+    if pipeline_name in ["qsiprep"]:
+        in_deriv = click.confirm('Search in derivatives folder?')
+        return pipeline_name, in_deriv
+    else:
+        return pipeline_name
+
+
+@click.command()
+@click.option(
+    '--pipeline-name', prompt='Pipeline name',
+    help=(
+        'Name of supported pipeline. The following pipelines are supported: '
+        'afq, qsiprep'),
+    callback=check_if_in_deriv_folder)
+@click.option('--bids-path', prompt='BIDS path', default="./",
+              help='Path to BIDS dataset')
+def parse(pipeline_name, bids_path):
+    if '(' in pipeline_name:  # pipeline_name is a str representing a tuple
+        in_deriv = "True" in pipeline_name
+        pipeline_name = pipeline_name.split("'")[1]
+
+    if pipeline_name.lower() == 'afq':
+        inputs = get_pyafq_inputs(bids_path)
+    elif pipeline_name.lower() == 'qsiprep':
+        inputs = get_qsiprep_inputs(bids_path, in_deriv)
+    else:
+        raise click.BadParameter(
+            f"Pipeline {pipeline_name} is not supported. "
+            f"The following pipelines are supported: afq, qsiprep")
+    gen_json(inputs)
+
+if __name__ == '__main__':
+    parse()

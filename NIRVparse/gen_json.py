@@ -1,5 +1,6 @@
 from NIRVparse.process_csv import find_process_csv
 from NIRVparse.builtin_descriptions import builtin_descriptions
+from NIRVparse.find_html import get_html
 import logging
 from bids.layout import BIDSLayout
 import logging
@@ -13,12 +14,16 @@ def gen_json(inputs):
     # merge input CSVs
     merged_dfs = None
     for csv_info in inputs.list_of_CSVinfo:
-        deriv_folder = op.join(
-            inputs.bids_layout_path,
-            "derivatives",
-            csv_info.derivative_folder)
+        if csv_info.derivative_folder is None:
+            derivatives = False
+        else:
+            derivatives = op.join(
+                inputs.bids_layout_path,
+                "derivatives",
+                csv_info.derivative_folder)
+
         bids_layout = BIDSLayout(
-            inputs.bids_layout_path, derivatives=deriv_folder,
+            inputs.bids_layout_path, derivatives=derivatives,
             **inputs.bids_layout_kwargs)
 
         df, has_sess = find_process_csv(csv_info, bids_layout)
@@ -49,16 +54,10 @@ def gen_json(inputs):
 
         all_filters = {**inputs.html_bids_filters, **participant_filters}
         all_filters["extension"] = "html"
-        found_html = bids_layout_html.get(**all_filters)
-        if len(found_html) < 1:
-            logger.warning(f"No HTML found with filters: {all_filters}")
-        else:
-            if len(found_html) > 1:
-                logger.warning((
-                    f"More than one HTML found with filters: {all_filters}. "
-                    f"The following path was chosen: {found_html[0].path}"))
+        html_path = get_html(bids_layout_html, all_filters)
+        if html_path is not None:
             merged_dfs.loc[index, "path_to_html_report"] = op.relpath(
-                found_html[0].path, inputs.bids_layout_path)
+                html_path, inputs.bids_layout_path)
     merged_dfs.to_csv(
         op.join(
             inputs.bids_layout_path,
